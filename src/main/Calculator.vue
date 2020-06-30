@@ -47,8 +47,10 @@
                 if(operation === '=') {
                     try {
                         let displayValue = parseFloat(eval(`${this.displayValue}`))
-                        displayValue = (displayValue < 1 && displayValue > 0)?
-                                        displayValue.toFixed(5) : displayValue
+                        console.log(displayValue.toString())
+                        displayValue = (Number.isInteger(displayValue) 
+                                        || displayValue.toString().length <= 10)?
+                                        displayValue : displayValue.toFixed(4)
 
                         this.displayValue = displayValue
                         this.isAnswer = true
@@ -72,8 +74,8 @@
                     return
                 }
 
-                const clearDisplay = this.displayValue === '0'
-                    || this.clearDisplay
+                const clearDisplay = (this.displayValue === '0'
+                    || this.clearDisplay) && n !== '.'
                 
                 const currentValue = clearDisplay ? "" : this.displayValue
                 const displayValue = currentValue + n
