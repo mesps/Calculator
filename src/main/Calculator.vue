@@ -34,7 +34,7 @@
                 clearDisplay: false,
                 operation: null,
                 isAnswer: false,
-                current: 0
+                last: false
             }
         },
         components: {Button, Display},
@@ -47,23 +47,27 @@
                 if(operation === '=') {
                     try {
                         let displayValue = parseFloat(eval(`${this.displayValue}`))
-                        console.log(displayValue.toString())
+                        
                         displayValue = (Number.isInteger(displayValue) 
                                         || displayValue.toString().length <= 10)?
                                         displayValue : displayValue.toFixed(4)
 
                         this.displayValue = displayValue
                         this.isAnswer = true
+                        this.last = false
                     }
                     catch(e) {
                         this.$emit('onError')
                     }
                 }
                 else {
-                    if(this.displayValue.length === 10) return
+                    if(this.displayValue.length === 10 || this.last) return
+
                     this.isAnswer = false
                     this.displayValue = this.displayValue + operation
+                    this.last = true
                 }
+
             },
             addDigit(n) {
                 if(this.displayValue.length === 10) return
@@ -74,7 +78,7 @@
                     return
                 }
 
-                const clearDisplay = (this.displayValue === '0'
+                const clearDisplay = (this.displayValue == '0'
                     || this.clearDisplay) && n !== '.'
                 
                 const currentValue = clearDisplay ? "" : this.displayValue
@@ -82,12 +86,22 @@
                 
                 this.displayValue = displayValue
                 this.clearDisplay = false
+                this.last = false
             },
             deleteLast() {
                 let displayValue = this.displayValue.toString()
+                if(displayValue.length === 1) {
+                    this.displayValue = 0
+                    this.last = false
+                }
+                else {
+                    displayValue = displayValue.substring(0, displayValue.length - 1)
+                    this.displayValue = displayValue
+
+                    if(displayValue[displayValue.length-1].match(/[0-9.]/)) this.last = false
+                    else this.last = true
+                }
                 
-                displayValue = displayValue.substring(0, displayValue.length - 1)
-                this.displayValue = displayValue
             },
             error() {
                 this.displayValue='ERR. Try Again.'
